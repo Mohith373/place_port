@@ -59,6 +59,10 @@ export default async function Portfolio({ params }: Props) {
         <PortfolioActions />
         <article className="overflow-hidden rounded-2xl border bg-white print:border-0">
           <header className="bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-8 text-white">
+  {p.photo_url && (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={p.photo_url} alt={p.full_name || username} className="mb-4 h-28 w-28 rounded-full border-4 border-white/60 object-cover" />
+  )}
             <h1 className="text-3xl font-bold">{p.full_name || username}</h1>
             <p className="mt-1">
               {[p.branch && `B.Tech ${p.branch}`, p.college].filter(Boolean).join(' · ')}

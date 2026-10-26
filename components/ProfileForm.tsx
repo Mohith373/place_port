@@ -43,7 +43,7 @@ function ListEditor({
     <section className="space-y-2">
       <h2 className="text-lg font-semibold">{title}</h2>
       {rows.map((row, i) => (
-        <div key={i} className="grid gap-2 rounded border border-gray-600 p-3 sm:grid-cols-2">
+        <div key={i} className="grid gap-2 rounded border border-gray-200 bg-white p-3 shadow-sm sm:grid-cols-2">
           {fields.map((f) =>
             f.area ? (
               <textarea key={f.key} className={`${inputCls} sm:col-span-2`} placeholder={f.label}
@@ -91,6 +91,26 @@ export default function ProfileForm({
   const [msg, setMsg] = useState('')
 
   const set = (k: string, val: string) => setF({ ...f, [k]: val })
+
+  const hasData = (r: Row) => Object.values(r).some((x) => x.trim() !== '')
+  const checks: [string, boolean][] = [
+    ['add your full name', !!f.full_name.trim()],
+    ['add your phone number', !!f.phone.trim()],
+    ['select your branch', !!f.branch],
+    ['add your college', !!f.college.trim()],
+    ['add your roll number', !!f.roll_no.trim()],
+    ['add your batch year', !!f.batch_year.trim()],
+    ['add your CGPA', !!f.cgpa.trim()],
+    ['write an About section', !!f.bio.trim()],
+    ['list your skills', !!f.skills.trim()],
+    ['add LinkedIn or GitHub', !!(f.linkedin.trim() || f.github.trim())],
+    ['add an education entry', edu.some(hasData)],
+    ['add a project', proj.some(hasData)],
+    ['add an internship or certification', exp.some(hasData) || !!f.certifications.trim()],
+  ]
+  const score = Math.round((checks.filter(([, ok]) => ok).length / checks.length) * 100)
+  const tips = checks.filter(([, ok]) => !ok).slice(0, 3).map(([t]) => t)
+
   const text = (key: string, label: string, type = 'text') => (
     <label className="block text-sm font-medium">
       {label}
@@ -148,6 +168,24 @@ export default function ProfileForm({
 
   return (
     <form onSubmit={save} className="mt-6 space-y-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between text-sm font-semibold">
+          <span>Profile strength</span>
+          <span className={score >= 80 ? 'text-green-600' : 'text-indigo-600'}>{score}%</span>
+        </div>
+        <div className="mt-2 h-3 overflow-hidden rounded-full bg-gray-200">
+          <div
+            className={`h-3 rounded-full transition-all ${score >= 80 ? 'bg-green-500' : 'bg-indigo-500'}`}
+            style={{ width: `${score}%` }}
+          />
+        </div>
+        {tips.length > 0 ? (
+          <p className="mt-2 text-xs text-gray-500">Next: {tips.join(' · ')}</p>
+        ) : (
+          <p className="mt-2 text-xs text-green-600">Great! Your profile is complete.</p>
+        )}
+      </div>
+
       <section className="grid gap-3 sm:grid-cols-2">
         {text('full_name', 'Full name')}
         {text('phone', 'Phone')}
@@ -185,8 +223,18 @@ export default function ProfileForm({
         <button disabled={saving} className="rounded bg-indigo-600 px-5 py-2 text-white disabled:opacity-60">
           {saving ? 'Saving...' : 'Save'}
         </button>
-        {msg && <span className={msg.startsWith('Error') ? 'text-red-500' : 'text-green-500'}>{msg}</span>}
+        {msg && <span className={msg.startsWith('Error') ? 'text-red-500' : 'text-green-600'}>{msg}</span>}
       </div>
+
+      {msg === 'Saved!' && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm">
+          <p className="font-semibold text-green-800">Your portfolio and resume are ready!</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <a className="rounded-lg bg-indigo-600 px-3 py-1.5 font-medium text-white" href={`/p/${username}`} target="_blank" rel="noopener noreferrer">View portfolio</a>
+            <a className="rounded-lg bg-white px-3 py-1.5 font-medium text-gray-800 ring-1 ring-gray-300" href={`/resume/${username}`} target="_blank" rel="noopener noreferrer">View / download resume</a>
+          </div>
+        </div>
+      )}
     </form>
   )
 }
