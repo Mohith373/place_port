@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import PasswordField from '@/components/PasswordField'
+import { checkPassword } from '@/lib/password'
 
 const inputCls = 'mt-1 w-full rounded-lg border border-gray-300 bg-white p-2.5 text-black focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200'
 
@@ -17,6 +19,9 @@ export default function ResetPassword() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    if (!checkPassword(password).strong) {
+      return setError('Please choose a strong password (8+ characters with upper and lower case letters, a number and a symbol).')
+    }
     if (password !== confirm) return setError('Passwords do not match')
     setLoading(true)
     const supabase = createClient()
@@ -46,14 +51,15 @@ export default function ResetPassword() {
           </p>
         ) : (
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <label className="block text-sm font-medium">
-              New password (min 6 characters)
-              <input className={inputCls} type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
-            </label>
+            <PasswordField label="New password" value={password} onChange={setPassword} />
             <label className="block text-sm font-medium">
               Confirm new password
-              <input className={inputCls} type="password" minLength={6} required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+              <input className={inputCls} type="password" autoComplete="new-password" required value={confirm}
+                onChange={(e) => setConfirm(e.target.value)} />
             </label>
+            {confirm.length > 0 && password !== confirm && (
+              <p className="text-xs text-red-600">Passwords do not match yet.</p>
+            )}
             {error && (
               <p className="rounded-lg bg-red-50 p-2 text-sm text-red-600">
                 {error}{' '}

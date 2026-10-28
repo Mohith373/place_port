@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import PasswordField from '@/components/PasswordField'
+import { checkPassword } from '@/lib/password'
 
 const inputCls = 'mt-1 w-full rounded-lg border border-gray-300 bg-white p-2.5 text-black focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200'
 
@@ -14,8 +16,11 @@ export default function Signup() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
     setError('')
+    if (!checkPassword(form.password).strong) {
+      return setError('Please choose a strong password (8+ characters with upper and lower case letters, a number and a symbol).')
+    }
+    setLoading(true)
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email: form.email,
@@ -44,11 +49,8 @@ export default function Signup() {
             <input className={inputCls} type="email" required value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </label>
-          <label className="block text-sm font-medium">
-            Password (min 6 characters)
-            <input className={inputCls} type="password" minLength={6} required value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })} />
-          </label>
+          <PasswordField label="Password" value={form.password}
+            onChange={(v) => setForm({ ...form, password: v })} />
           {error && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-600">{error}</p>}
           <button disabled={loading} className="w-full rounded-lg bg-indigo-600 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-60">
             {loading ? 'Creating...' : 'Sign up'}
