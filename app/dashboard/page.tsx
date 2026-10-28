@@ -4,6 +4,7 @@ import ProfileForm from '@/components/ProfileForm'
 import ShareCard from '@/components/ShareCard'
 import AtsChecker from '@/components/AtsChecker'
 import PhotoUpload from '@/components/PhotoUpload'
+import Reveal from '@/components/Reveal'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -29,23 +30,33 @@ export default async function Dashboard() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-2xl font-bold">My portfolio details</h1>
-      <p className="text-sm text-gray-500">Fill in your details and click Save. Your portfolio and resume update instantly.</p>
+      <Reveal>
+        <h1 className="text-2xl font-bold">My portfolio details</h1>
+        <p className="text-sm text-gray-500">Fill in your details and click Save. Your portfolio and resume update instantly.</p>
+      </Reveal>
 
-      <ShareCard username={profile.username} isPublic={!!profile.is_public} />
+      <Reveal delay={80}>
+        <ShareCard username={profile.username} isPublic={!!profile.is_public} />
+      </Reveal>
 
-      <PhotoUpload userId={user.id} photoUrl={profile.photo_url} name={profile.full_name || ''} />
+      <Reveal delay={160}>
+        <PhotoUpload userId={user.id} photoUrl={profile.photo_url} name={profile.full_name || ''} />
+      </Reveal>
 
-      <ProfileForm
-        userId={user.id}
-        username={profile.username}
-        profile={profile}
-        education={education.data ?? []}
-        projects={projects.data ?? []}
-        experience={experience.data ?? []}
-      />
+      <Reveal delay={240}>
+        <ProfileForm
+          userId={user.id}
+          username={profile.username}
+          profile={profile}
+          education={education.data ?? []}
+          projects={projects.data ?? []}
+          experience={experience.data ?? []}
+        />
+      </Reveal>
 
-      <AtsChecker resumeText={resumeText} />
+      <Reveal>
+        <AtsChecker resumeText={resumeText} />
+      </Reveal>
     </main>
   )
 }
